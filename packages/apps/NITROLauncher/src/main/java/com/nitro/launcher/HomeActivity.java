@@ -28,30 +28,62 @@ public class HomeActivity extends Activity {
     }
 
     private void launch(String target) {
-        Intent intent = null;
         if ("Camera".equals(target)) {
-            intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
-        } else if ("Music".equals(target)) {
+            // Never route a missing camera to the document picker. Try the normal
+            // camera surface, then the capture intent, and fail with a clear message.
+            if (!getPackageManager().hasSystemFeature(
+                    android.content.pm.PackageManager.FEATURE_CAMERA_ANY)) {
+                Toast.makeText(this, "No camera is available on this device",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent camera = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            if (canHandle(camera)) {
+                startSafely(camera, "Camera");
+                return;
+            }
+            Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (canHandle(capture)) {
+                startSafely(capture, "Camera");
+                return;
+            }
+            Toast.makeText(this, "No compatible camera app is installed",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = null;
+        if ("Music".equals(target)) {
             intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_APP_MUSIC);
         } else if ("Settings".equals(target)) {
             intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
         } else if ("Files".equals(target)) {
+            // This is the only action that intentionally opens the document picker.
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
             intent.addCategory(Intent.CATEGORY_OPENABLE);
         } else if ("Photos".equals(target)) {
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.parse("content://media/external/images/media"), "image/*");
+            // Use the system photo picker/content provider rather than a raw media URI.
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
         } else if ("Phone".equals(target)) {
             intent = new Intent(Intent.ACTION_DIAL);
         }
-        if (intent != null) {
-            try {
-                startActivity(intent);
-            } catch (Exception e) {
-                Toast.makeText(this, target + " isn't available yet", Toast.LENGTH_SHORT).show();
-            }
+
+        if (intent != null) startSafely(intent, target);
+    }
+
+    private boolean canHandle(Intent intent) {
+        return intent.resolveActivity(getPackageManager()) != null;
+    }
+
+    private void startSafely(Intent intent, String target) {
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, target + " isn't available yet", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -73,6 +105,7 @@ public class HomeActivity extends Activity {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
             for (int i = 0; i < hit.length; i++) hit[i] = new RectF();
             setFocusable(true);
+            setContentDescription("NITRO home screen with Music, Camera, Photos, Files, Settings and Phone");
         }
 
         @Override protected void onDraw(Canvas c) {
@@ -108,22 +141,24 @@ public class HomeActivity extends Activity {
             p.setColor(0xBFE8ECF4);
             c.drawText("NITRO", w * .08f, h * .265f, p);
 
-            float left = w * .075f, gap = w * .065f;
-            float cell = (w - 2 * left - gap) / 2f;
-            float top = h * .36f, rowGap = h * .19f;
-            float icon = Math.min(w * .17f, h * .095f);
+            // Three-column layout gives the six core apps a familiar, balanced
+            // home-screen grid while keeping icon sizes comfortable on 720px displays.
+            float left = w * .06f, gap = w * .035f;
+            float cell = (w - 2 * left - 2 * gap) / 3f;
+            float top = h * .405f, rowGap = h * .205f;
+            float icon = Math.min(w * .145f, h * .082f);
 
             for (int i = 0; i < names.length; i++) {
-                int row = i / 2, col = i % 2;
+                int row = i / 3, col = i % 3;
                 float cx = left + col * (cell + gap) + cell / 2f;
                 float cy = top + row * rowGap;
                 RectF r = new RectF(cx - icon/2, cy - icon/2, cx + icon/2, cy + icon/2);
-                hit[i].set(r.left - cell*.18f, r.top - h*.025f,
-                           r.right + cell*.18f, r.bottom + h*.075f);
+                hit[i].set(r.left - cell*.12f, r.top - h*.025f,
+                           r.right + cell*.12f, r.bottom + h*.075f);
                 drawIcon(c, r, colors[i], glyphs[i]);
                 p.setColor(0xFFF3F5FA);
                 p.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-                p.setTextSize(sp(13));
+                p.setTextSize(sp(12));
                 p.setTextAlign(Paint.Align.CENTER);
                 c.drawText(names[i], cx, r.bottom + h*.045f, p);
             }
