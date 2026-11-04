@@ -105,6 +105,7 @@ public class HomeActivity extends Activity {
             setLayerType(View.LAYER_TYPE_HARDWARE, null);
             for (int i = 0; i < hit.length; i++) hit[i] = new RectF();
             setFocusable(true);
+            setContentDescription("NITRO home screen with Music, Camera, Photos, Files, Settings and Phone");
         }
 
         @Override protected void onDraw(Canvas c) {
@@ -140,22 +141,24 @@ public class HomeActivity extends Activity {
             p.setColor(0xBFE8ECF4);
             c.drawText("NITRO", w * .08f, h * .265f, p);
 
-            float left = w * .075f, gap = w * .065f;
-            float cell = (w - 2 * left - gap) / 2f;
-            float top = h * .36f, rowGap = h * .19f;
-            float icon = Math.min(w * .17f, h * .095f);
+            // Three-column layout gives the six core apps a familiar, balanced
+            // home-screen grid while keeping icon sizes comfortable on 720px displays.
+            float left = w * .06f, gap = w * .035f;
+            float cell = (w - 2 * left - 2 * gap) / 3f;
+            float top = h * .405f, rowGap = h * .205f;
+            float icon = Math.min(w * .145f, h * .082f);
 
             for (int i = 0; i < names.length; i++) {
-                int row = i / 2, col = i % 2;
+                int row = i / 3, col = i % 3;
                 float cx = left + col * (cell + gap) + cell / 2f;
                 float cy = top + row * rowGap;
                 RectF r = new RectF(cx - icon/2, cy - icon/2, cx + icon/2, cy + icon/2);
-                hit[i].set(r.left - cell*.18f, r.top - h*.025f,
-                           r.right + cell*.18f, r.bottom + h*.075f);
+                hit[i].set(r.left - cell*.12f, r.top - h*.025f,
+                           r.right + cell*.12f, r.bottom + h*.075f);
                 drawIcon(c, r, colors[i], glyphs[i]);
                 p.setColor(0xFFF3F5FA);
                 p.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-                p.setTextSize(sp(13));
+                p.setTextSize(sp(12));
                 p.setTextAlign(Paint.Align.CENTER);
                 c.drawText(names[i], cx, r.bottom + h*.045f, p);
             }
