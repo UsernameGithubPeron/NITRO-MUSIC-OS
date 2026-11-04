@@ -5,14 +5,20 @@
 
     <application
         android:allowBackup="false"
-        android:label="NITRO Home"
+        android:label="NITRO MUSIC OS"
         android:theme="@style/NitroTheme"
         android:usesCleartextTraffic="false">
 
         <activity
             android:name=".HomeActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified" />
+
+        <activity
+            android:name=".StartupActivity"
             android:exported="true"
-            android:screenOrientation="unspecified">
+            android:screenOrientation="unspecified"
+            android:theme="@style/NitroTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
