@@ -1,8 +1,8 @@
 android_app {
     name: "NITROLauncher",
-    srcs: ["src/**/*.java"],
-    manifest: "AndroidManifest.xml",
-    resource_dirs: ["res"],
+    srcs: ["src/main/java/**/*.java"],
+    manifest: "src/main/AndroidManifest.xml",
+    resource_dirs: ["src/main/res"],
     platform_apis: true,
     certificate: "platform",
     privileged: true,
