@@ -14,3 +14,7 @@ PRODUCT_TARGET_VNDK_VERSION := 31
 # Device-specific packages and proprietary files will be added
 # after the matching vendor files and hardware configuration
 # have been recovered and verified.
+
+# NITRO MUSIC OS applications
+PRODUCT_PACKAGES += \
+    NITROLauncher
