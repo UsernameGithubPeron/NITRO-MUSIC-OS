@@ -5,3 +5,13 @@ out/
 *.tar
 *.tar.gz
 *.log
+
+# Proprietary stock phone files - never publish
+/backups/
+/vendor/
+/documentation/audio/*.xml
+
+# Proprietary stock phone files - never publish
+/backups/
+/vendor/
+/documentation/audio/*.xml
