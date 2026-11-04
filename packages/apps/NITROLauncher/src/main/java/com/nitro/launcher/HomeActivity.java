@@ -28,30 +28,62 @@ public class HomeActivity extends Activity {
     }
 
     private void launch(String target) {
-        Intent intent = null;
         if ("Camera".equals(target)) {
-            intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
-        } else if ("Music".equals(target)) {
+            // Never route a missing camera to the document picker. Try the normal
+            // camera surface, then the capture intent, and fail with a clear message.
+            if (!getPackageManager().hasSystemFeature(
+                    android.content.pm.PackageManager.FEATURE_CAMERA_ANY)) {
+                Toast.makeText(this, "No camera is available on this device",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent camera = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            if (canHandle(camera)) {
+                startSafely(camera, "Camera");
+                return;
+            }
+            Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (canHandle(capture)) {
+                startSafely(capture, "Camera");
+                return;
+            }
+            Toast.makeText(this, "No compatible camera app is installed",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = null;
+        if ("Music".equals(target)) {
             intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_APP_MUSIC);
         } else if ("Settings".equals(target)) {
             intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
         } else if ("Files".equals(target)) {
+            // This is the only action that intentionally opens the document picker.
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
             intent.addCategory(Intent.CATEGORY_OPENABLE);
         } else if ("Photos".equals(target)) {
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.parse("content://media/external/images/media"), "image/*");
+            // Use the system photo picker/content provider rather than a raw media URI.
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
         } else if ("Phone".equals(target)) {
             intent = new Intent(Intent.ACTION_DIAL);
         }
-        if (intent != null) {
-            try {
-                startActivity(intent);
-            } catch (Exception e) {
-                Toast.makeText(this, target + " isn't available yet", Toast.LENGTH_SHORT).show();
-            }
+
+        if (intent != null) startSafely(intent, target);
+    }
+
+    private boolean canHandle(Intent intent) {
+        return intent.resolveActivity(getPackageManager()) != null;
+    }
+
+    private void startSafely(Intent intent, String target) {
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, target + " isn't available yet", Toast.LENGTH_SHORT).show();
         }
     }
 
