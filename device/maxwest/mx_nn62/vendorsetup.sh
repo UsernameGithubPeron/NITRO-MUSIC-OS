@@ -1,0 +1,1 @@
+add_lunch_combo aosp_mx_nn62-userdebug

@@ -1,0 +1,10 @@
+Filesystem            Size Used Avail Use% Mounted on
+tmpfs                 938M 2.4M  936M   1% /dev
+tmpfs                 938M    0  938M   0% /mnt
+/dev/block/dm-3       942M 939M     0 100% /
+/dev/block/dm-4       255M 255M     0 100% /vendor
+/dev/block/dm-5       1.1G 1.1G     0 100% /product
+tmpfs                 938M 8.0K  938M   1% /apex
+/dev/block/mmcblk0p36 104M 1.1M  100M   2% /cache
+/dev/block/dm-6        26G 4.2G   22G  17% /data
+/dev/fuse              26G 4.2G   22G  17% /storage/emulated
