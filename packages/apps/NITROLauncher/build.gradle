@@ -1,0 +1,16 @@
+plugins {
+    id 'com.android.application' version '8.7.3'
+}
+
+android {
+    namespace 'com.nitro.launcher'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.nitro.launcher'
+        minSdk 31
+        targetSdk 31
+        versionCode 1
+        versionName '1.0'
+    }
+}

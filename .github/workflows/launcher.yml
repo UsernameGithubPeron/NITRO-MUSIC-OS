@@ -1,0 +1,46 @@
+name: Build NITRO GLASS Launcher
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/apps/NITROLauncher/**'
+      - '.github/workflows/launcher.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build launcher APK
+        run: gradle -p packages/apps/NITROLauncher assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NITRO-GLASS-debug
+          path: packages/apps/NITROLauncher/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
